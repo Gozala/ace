@@ -42,7 +42,8 @@ require({
         demo: "../demo",
         ace: "../lib/ace",
         cockpit: "../support/cockpit/lib/cockpit",
-        pilot: "../support/pilot/lib/pilot"
+        pilot: "../support/pilot/lib/pilot",
+        "light-traits": "../support/light-traits/amd/light-traits"
     }
 }, [ "pilot/fixoldbrowsers", "demo/demo" ], "demo/demo");
 
