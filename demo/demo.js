@@ -42,7 +42,7 @@
 define(function(require, exports, module) {
 
 exports.name = "ace demo";
-exports.plug = function(data) {
+exports.startup = function(data) {
 
     var env = data.env;
     var event = require("pilot/event");
@@ -328,13 +328,13 @@ ace.create({
   // loaded so if your plug-in A depends on B it should
   // appear earlier in the array.
   plugins: [
-    require("pilot/index"),
+    //require("pilot/index"),
     exports,
-    require("cockpit/index"),
-    require("ace/defaults"),
+    //require("cockpit/index"),
+    //require("ace/defaults"),
     // For the moment settings-manager should at the top
     // so that settings will get picked up.
-    require("ace/settings-manager"),
+    //require("ace/settings-manager"),
 
     // themes
     require("ace/theme-manager"),
