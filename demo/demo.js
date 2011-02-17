@@ -121,7 +121,7 @@ exports.startup = function(data) {
     docs.c_cpp.setUndoManager(new UndoManager());
 
     var container = document.getElementById("editor");
-    env.editor = new Editor(new Renderer(container, theme));
+    env.editor = new Editor(new Renderer(container));
 
     var modes = {
         text: new TextMode(),
