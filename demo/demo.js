@@ -329,6 +329,7 @@ ace.create({
   // appear earlier in the array.
   plugins: [
     require("pilot/index"),
+    require("ace/type-manager"),
     exports,
     require("cockpit/index"),
     require("ace/defaults"),
