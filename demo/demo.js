@@ -42,7 +42,7 @@
 define(function(require, exports, module) {
 
 exports.name = "ace demo";
-exports.plug = function(data) {
+exports.startup = function(data) {
 
     var env = data.env;
     var event = require("pilot/event");
