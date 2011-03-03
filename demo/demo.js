@@ -331,12 +331,13 @@ ace.create({
     require("pilot/index"),
     require("pilot/canon"),
     require("ace/type-manager"),
-    exports,
-    require("cockpit/index"),
-    require("ace/defaults"),
     // For the moment settings-manager should at the top
     // so that settings will get picked up.
     require("ace/settings-manager"),
+
+    exports,
+    require("cockpit/index"),
+    require("ace/defaults"),
 
     // themes
     require("ace/theme-manager"),
