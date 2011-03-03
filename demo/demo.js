@@ -328,6 +328,20 @@ ace.create({
   // loaded so if your plug-in A depends on B it should
   // appear earlier in the array.
   plugins: [
+    {   name: 'logger',
+        install: function (data) {
+            var env = data.env;
+            env.on("plugin:startup", function(event) {
+                console.log(event.type, event.plugin.name, event.plugin);
+            });
+            env.on("type:install", function(event) {
+                console.log(event.type, event.descriptor.name, event.descriptor);
+            });
+            env.on("setting:install", function(event) {
+                console.log(event.type, event.setting.name, event.setting);
+            });
+        }
+    },
     require("pilot/index"),
     require("pilot/canon"),
     require("ace/type-manager"),
