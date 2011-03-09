@@ -123,6 +123,10 @@ exports.startup = function(data) {
     var container = document.getElementById("editor");
     env.editor = new Editor(new Renderer(container));
 
+    // TODO: Replace this dirty hack with a proper solution allowing keyboard
+    // to emit events on environment.
+    env.editor.env = env;
+
     var modes = {
         text: new TextMode(),
         xml: new XmlMode(),
