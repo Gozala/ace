@@ -53,6 +53,13 @@ copy({
     dest: 'build/editor.html'
 });
 
+function filterTextPlugin(text) {
+    return text.replace(/(['"])text\!/g, "$1text/");
+    /*return text
+        .replace(/define\(\s*['"]text\!\)/g, "text/")
+        .replace(/require\(\s*['"]text\!\)/g, "text/")*/
+}
+
 var ace = copy.createDataObject();
 copy({
     source: [
@@ -85,24 +92,15 @@ copy({
 copy({
     source: {
         root: project,
-        include: /.*\.css$|.*\.html$/,
+        include: /.*\.css$/,
         exclude: /tests?\//
     },
     filter: [ copy.filter.addDefines ],
     dest: ace
 });
 copy({
-    source: {
-        root: project,
-        include: /.*\.png$|.*\.gif$/,
-        exclude: /tests?\//
-    },
-    filter: [ copy.filter.base64 ],
-    dest: ace
-});
-copy({
     source: [
-        'build_support/boot.js'    
+        'build_support/boot.js'
     ],
     dest: ace
 });
@@ -111,11 +109,12 @@ copy({
 // Create the compressed and uncompressed output files
 copy({
     source: ace,
-    filter: copy.filter.uglifyjs,
+    filter: [copy.filter.uglifyjs, filterTextPlugin],
     dest: 'build/src/ace.js'
 });
 copy({
     source: ace,
+    filter: [filterTextPlugin],
     dest: 'build/src/ace-uncompressed.js'
 });
 
@@ -166,9 +165,13 @@ copy({
 });
 
 
-// create modes
+console.log('# ace modes ---------');
+
 project.assumeAllFilesLoaded();
-["css", "html", "javascript", "php", "python", "xml", "ruby", "java", "c_cpp", "coffee"].forEach(function(mode) {
+[
+    "css", "html", "javascript", "php", "python", "xml", "ruby", "java", "c_cpp",
+    "coffee", "perl", "csharp", "svg"
+].forEach(function(mode) {
     console.log("mode " + mode);
     copy({
         source: [
@@ -177,12 +180,11 @@ project.assumeAllFilesLoaded();
                 require: [ 'ace/mode/' + mode ]
             })
         ],
-        filter: [ copy.filter.debug, copy.filter.moduleDefines, copy.filter.uglifyjs ],
+        filter: [ copy.filter.debug, copy.filter.moduleDefines, copy.filter.uglifyjs, filterTextPlugin ],
         dest: "build/src/mode-" + mode + ".js"
     });
 });
 
-// create worker
 console.log('# worker ---------');
 
 var jsWorker = copy.createDataObject();
@@ -210,44 +212,23 @@ copy({
         aceHome + "/lib/ace/worker/worker.js",
         jsWorker
     ],
-    filter: [ copy.filter.uglifyjs ],
+    filter: [ copy.filter.uglifyjs, filterTextPlugin ],
     dest: "build/src/worker-javascript.js"
 });
 
-// create themes
-var eclipseTheme = copy.createDataObject();
-copy({
-    source: [{
-        root: aceHome + '/lib',
-        include: "ace/theme/eclipse.js"
-    }],
-    filter: [ copy.filter.moduleDefines ],
-    dest: eclipseTheme
-});
-copy({
-    source: [{
-        root: aceHome + '/lib',
-        include: "ace/theme/eclipse.css"
-    }],
-    filter: [ copy.filter.addDefines ],
-    dest: eclipseTheme
-});
-copy({
-    source: eclipseTheme,
-    filter: [ copy.filter.uglifyjs ],
-    dest: 'build/src/theme-eclipse.js'
-});
+console.log('# ace themes ---------');
 
 [
-    "clouds", "clouds_midnight", "cobalt", "dawn", "idle_fingers", "kr_theme", 
-    "mono_industrial", "monokai", "pastel_on_dark", "twilight"
+    "clouds", "clouds_midnight", "cobalt", "dawn", "idle_fingers", "kr_theme",
+    "mono_industrial", "monokai", "pastel_on_dark", "twilight", "eclipse",
+    "merbivore", "merbivore_soft", "vibrant_ink"
 ].forEach(function(theme) {
     copy({
         source: [{
             root: aceHome + '/lib',
             include: "ace/theme/" + theme + ".js"
         }],
-        filter: [ copy.filter.moduleDefines, copy.filter.uglifyjs ],
+        filter: [ copy.filter.moduleDefines, copy.filter.uglifyjs, filterTextPlugin ],
         dest: "build/src/theme-" + theme + ".js"
     });
 });
@@ -262,13 +243,14 @@ project.assumeAllFilesLoaded();
                 require: [ 'ace/keyboard/keybinding/' + keybinding ]
             })
         ],
-        filter: [ copy.filter.moduleDefines, copy.filter.uglifyjs ],
+        filter: [ copy.filter.moduleDefines, copy.filter.uglifyjs, filterTextPlugin ],
         dest: "build/src/keybinding-" + keybinding + ".js"
     });
 });
 
 
-// copy text files
+console.log('# License | Readme | Changelog ---------');
+
 copy({
     source: aceHome + "/LICENSE",
     dest: 'build/LICENSE'
@@ -290,9 +272,9 @@ copy({
 //            "ace", "cockpit",
 //            "keybinding-vim", "keybinding-emacs",
 //            "mode-javascript", "mode-css", "mode-html", "mode-php", "mode-python",
-//            "mode-xml", 
+//            "mode-xml",
 //            "theme-clouds", "theme-clouds_midnight", "theme-cobalt",
-//            "theme-dawn", "theme-idle_fingers", "theme-kr_theme", 
+//            "theme-dawn", "theme-idle_fingers", "theme-kr_theme",
 //            "theme-mono_industrial", "theme-monokai", "theme-pastel_on_dark",
 //            "theme-twilight"
 //        ].map(function(module) {
@@ -305,7 +287,7 @@ copy({
 //    } ],
 //    dest: "build/editor-demo.html"
 //});
-//copy({    
+//copy({
 //    source: [{
 //        root: aceHome + '/demo',
 //        include: "demo.js"
@@ -313,11 +295,11 @@ copy({
 //    filter: [ copy.filter.moduleDefines ],
 //    dest: "build/demo/demo.js"
 //});
-//copy({    
+//copy({
 //    source: aceHome + '/demo/styles.css',
 //    dest: "build/demo/styles.css"
 //});
-//copy({    
+//copy({
 //    source: aceHome + '/demo/logo.png',
 //    dest: "build/demo/logo.png"
 //});
