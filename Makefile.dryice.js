@@ -72,7 +72,7 @@ if (!target) {
 
 console.log("using targetDir '", targetDir, "'");
 
-var copy = require('dryice').copy;
+var copy = require('./support/dryice/lib/dryice').copy;
 
 var aceHome = __dirname;
 
@@ -80,7 +80,8 @@ console.log('# ace ---------');
 
 var aceProject = [
     aceHome + '/support/pilot/lib',
-    aceHome + '/lib'
+    aceHome + '/lib',
+    aceHome
 ];
 
 if (target == "normal") {
@@ -90,6 +91,8 @@ if (target == "normal") {
         source: "build_support/editor.html",
         dest:   targetDir + '/editor.html'
     });
+    
+    demo();
 } else if(target == "bm") {
     copy({
         source: "build_support/editor_textarea.html",
@@ -105,10 +108,7 @@ var project = copy.createCommonJsProject(aceProject);
 
 
 function filterTextPlugin(text) {
-    return text.replace(/(['"])text\!/g, "$1text/");
-    /*return text
-        .replace(/define\(\s*['"]text\!\)/g, "text/")
-        .replace(/require\(\s*['"]text\!\)/g, "text/")*/
+    return text.replace(/(['"])ace\/requirejs\/text\!/g, "$1text!");
 }
 
 var ace = copy.createDataObject();
@@ -193,15 +193,16 @@ if (target == "normal") {
         copy.filter.moduleDefines,
         shadow,
         copy.filter.uglifyjs
-    ]
+    ];
 }
 
 console.log('# ace modes ---------');
 
 project.assumeAllFilesLoaded();
 [
-    "css", "html", "javascript", "php", "python", "xml", "ruby", "java", "c_cpp",
-    "coffee", "perl", "csharp", "svg", "clojure", "scss", "json"
+    "css", "html", "javascript", "php", "python", "lua", "xml", "ruby", "java", "c_cpp",
+    "coffee", "perl", "csharp", "svg", "clojure", "scss", "json", "groovy",
+    "ocaml", "scala", "textile", "scad", "markdown", "latex"
 ].forEach(function(mode) {
     console.log("mode " + mode);
     copy({
@@ -219,9 +220,10 @@ project.assumeAllFilesLoaded();
 console.log('# ace themes ---------');
 
 [
-    "clouds", "clouds_midnight", "cobalt", "dawn", "idle_fingers", "kr_theme",
-    "mono_industrial", "monokai", "pastel_on_dark", "twilight", "eclipse",
-    "merbivore", "merbivore_soft", "vibrant_ink"
+    "clouds", "clouds_midnight", "cobalt", "crimson_editor", "dawn", "eclipse",
+    "idle_fingers", "kr_theme", "merbivore", "merbivore_soft",
+    "mono_industrial", "monokai", "pastel_on_dark", "solarized_dark",
+    "solarized_light", "textmate", "twilight", "vibrant_ink"
 ].forEach(function(theme) {
     copy({
         source: [{
@@ -304,88 +306,66 @@ project.assumeAllFilesLoaded();
     });
 });
 
-console.log('# cockpit ---------');
+function demo() {
+    console.log('# kitchen sink ---------');
 
-project.assumeAllFilesLoaded();
-project.addRoot(aceHome + '/support/cockpit/lib');
+    copy({
+        source: "kitchen-sink.html",
+        dest:   "build/kitchen-sink.html",
+        filter: [ function(data) {
+            return (data
+                .replace("DEVEL-->", "")
+                .replace("<!--DEVEL", "")
+                .replace("PACKAGE-->", "")
+                .replace("<!--PACKAGE", ""));
+        }]
+    });
 
-var cockpit = copy.createDataObject();
-copy({
-    source: [
-        copy.source.commonjs({
-            project: project,
-            require: [ 'cockpit/index' ]
-        })
-    ],
-    filter: [ copy.filter.moduleDefines ],
-    dest: cockpit
-});
-copy({
-    source: {
-        root: aceHome + '/support/cockpit/lib',
-        include: /.*\.css$|.*\.html$/,
-        exclude: /tests?\//
-    },
-    filter: [ copy.filter.addDefines ],
-    dest: cockpit
-});
-copy({
-    source: {
-        root: aceHome + '/support/cockpit/lib',
-        include: /.*\.png$|.*\.gif$/,
-        exclude: /tests?\//
-    },
-    filter: [ copy.filter.base64 ],
-    dest: cockpit
-});
+    var project = copy.createCommonJsProject(aceProject);
+    var demo = copy.createDataObject();
+    copy({
+        source: [
+            'build_support/mini_require.js'
+        ],
+        dest: demo
+    });
+    copy({
+        source: [
+            copy.source.commonjs({
+                project: project,
+                require: [ "pilot/index", "ace/defaults", "demo/boot" ]
+            })
+        ],
+        filter: [ copy.filter.moduleDefines ],
+        dest: demo
+    });
+    copy({
+        source: {
+            root: project,
+            include: /demo\/docs\/.*$/,
+            exclude: /tests?\//
+        },
+        filter: [ copy.filter.addDefines ],
+        dest: demo
+    });
+    copy({
+        source: {
+            root: project,
+            include: /.*\.css$/,
+            exclude: /tests?\//
+        },
+        filter: [ copy.filter.addDefines ],
+        dest: demo
+    });
 
-// Create the compressed and uncompressed output files
-copy({
-    source: cockpit,
-    filter: copy.filter.uglifyjs,
-    dest: 'build/src/cockpit.js'
-});
-copy({
-    source: cockpit,
-    dest: 'build/src/cockpit-uncompressed.js'
-});
-
-// copy complex demo
-//copy({
-//    source: aceHome + "/editor.html",
-//    filter: [ function(data) {
-//        var includes = [
-//            "ace", "cockpit",
-//            "keybinding-vim", "keybinding-emacs",
-//            "mode-javascript", "mode-css", "mode-html", "mode-php", "mode-python",
-//            "mode-xml",
-//            "theme-clouds", "theme-clouds_midnight", "theme-cobalt",
-//            "theme-dawn", "theme-idle_fingers", "theme-kr_theme",
-//            "theme-mono_industrial", "theme-monokai", "theme-pastel_on_dark",
-//            "theme-twilight"
-//        ].map(function(module) {
-//            return '<script src="src/' + module + '.js" type="text/javascript"></script>';
-//        }).join("\n");
-//        return (
-//            data.replace('<script src="demo/require.js" type="text/javascript" charset="utf-8"></script>', includes)
-//                .replace('<script src="demo/boot.js" type="text/javascript"></script>', '<script src="demo/demo.js" type="text/javascript"></script>\n<script>require("demo").launch()</script>')
-//        )
-//    } ],
-//    dest: "build/editor-demo.html"
-//});
-//copy({
-//    source: [{
-//        root: aceHome + '/demo',
-//        include: "demo.js"
-//    }],
-//    filter: [ copy.filter.moduleDefines ],
-//    dest: "build/demo/demo.js"
-//});
-//copy({
-//    source: aceHome + '/demo/styles.css',
-//    dest: "build/demo/styles.css"
-//});
-//copy({
-//    source: aceHome + '/demo/logo.png',
-//    dest: "build/demo/logo.png"
-//});
+    copy({
+        source: demo,
+        filter: [ filterTextPlugin ],
+        dest: 'build/demo/kitchen-sink-uncompressed.js'
+    });
+    copy({
+        source: demo,
+        filter: [ copy.filter.uglifyjs, filterTextPlugin ],
+        dest: 'build/demo/kitchen-sink.js'
+    });
+}
