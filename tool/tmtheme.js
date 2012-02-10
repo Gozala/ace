@@ -1,4 +1,4 @@
-var xml = require("../support/node-o3-xml-v4/lib/o3-xml");
+var xml = require("libxml");
 var fs = require("fs");
 
 function plistToJson(el) {
@@ -6,7 +6,7 @@ function plistToJson(el) {
         throw new Error("not a plist!");
 
     return $plistParse(el.selectSingleNode("dict"));
-};
+}
 
 function $plistParse(el) {            
     if (el.tagName == "dict") {
@@ -31,7 +31,7 @@ function $plistParse(el) {
     }
     else if (el.tagName == "array") {
         var arr = [];
-                var childNodes = el.childNodes;
+        var childNodes = el.childNodes;
         for (var i=0, l=childNodes.length; i<l; i++) {
             var child = childNodes[i];
             if (child.nodeType !== 1) 
@@ -51,7 +51,7 @@ function $plistParse(el) {
 function parseTheme(themeXml) {
     try {
         return plistToJson(xml.parseFromString(themeXml).documentElement);
-    } catch(e) { return }
+    } catch(e) { return; }
 }
  
 var supportedScopes = {
@@ -103,9 +103,9 @@ var supportedScopes = {
    "collab.user1": "collab.user1"
 };
 
-function extractStyles(theme) {   
+function extractStyles(theme) {
     var globalSettings = theme.settings[0].settings;
-    
+
     var colors = {
         "printMargin": "#e8e8e8",
         "background": parseColor(globalSettings.background),
@@ -117,10 +117,10 @@ function extractStyles(theme) {
         "bracket": parseColor(globalSettings.invisibles),
         "active_line": parseColor(globalSettings.lineHighlight),
         "cursor": parseColor(globalSettings.caret),
-        
+
         "invisible": "color: " + parseColor(globalSettings.invisibles) + ";"
-    }
-    
+    };
+
     for (var i=1; i<theme.settings.length; i++) {
         var element = theme.settings[i];
         if (!element.scope)
@@ -134,8 +134,29 @@ function extractStyles(theme) {
         }
     }
 
+    if (!colors.fold)
+        colors.fold = ((colors["entity.name.function"] || colors.keyword).match(/\:([^;]+)/)||[])[1];
+    
+    if (!colors.selected_word_highlight)
+        colors.selected_word_highlight =  "border: 1px solid " + colors.selection + ";";
+
+    colors.isDark = (luma(colors.background) < 0.5) + "";
+
     return colors;
 };
+
+function luma(color) {
+    if (color[0]=="#")
+        var rgb = color.match(/^#(..)(..)(..)/).slice(1).map(function(c) {
+            return parseInt(c, 16);
+        });
+    else
+        var rgb = color.match(/\(([^,]+),([^,]+),([^,]+)/).slice(1).map(function(c) {
+            return parseInt(c, 10);
+        });
+
+    return (0.21 * rgb[0] + 0.72 * rgb[1] + 0.07 * rgb[2]) / 255;
+}
 
 function parseColor(color) {
     if (color.length == 7)
@@ -158,32 +179,35 @@ function parseStyles(styles) {
     if (fontStyle.indexOf("italic") !== -1) {
         css.push("font-style:italic;");
     }
-    
+
     if (styles.foreground) {
         css.push("color:" + parseColor(styles.foreground) + ";");
     }
     if (styles.background) {
         css.push("background-color:" + parseColor(styles.background) + ";");
     }
-    
+
     return css.join("\n");
 }
 
 function fillTemplate(template, replacements) {
     return template.replace(/%(.+?)%/g, function(str, m) {
         return replacements[m] || "";
-    }); 
+    });
 }
 
 function createTheme(name, styles, cssTemplate, jsTemplate) {
     styles.cssClass = "ace-" + hyphenate(name);
     var css = fillTemplate(cssTemplate, styles);
+    
+    css = css.replace(/[^\{\}]+{\s*}/g, "");
     return fillTemplate(jsTemplate, {
         name: name,
         css: '"' + css.replace(/\\/, "\\\\").replace(/"/g, '\\"').replace(/\n/g, "\\\n") + '"',
-        cssClass: "ace-" + hyphenate(name)
+        cssClass: "ace-" + hyphenate(name),
+        isDark: styles.isDark
     });
-};
+}
 
 function hyphenate(str) {
     return str.replace(/([A-Z])/g, "-$1").replace(/_/g, "-").toLowerCase();
@@ -207,8 +231,13 @@ var themes = {
     "kr_theme": "krTheme",
     "solarized_light": "Solarized-light",
     "solarized_dark": "Solarized-dark",
+    "tomorrow": "Tomorrow",
+    "tomorrow_night": "Tomorrow-Night",
+    "tomorrow_night_blue": "Tomorrow-Night-Blue",
+    "tomorrow_night_bright": "Tomorrow-Night-Bright",
+    "tomorrow_night_eighties": "Tomorrow-Night-Eighties",
     "vibrant_ink": "Vibrant Ink"
-}
+};
 
 for (var name in themes) {
     console.log("Converting " + name);
