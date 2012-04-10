@@ -19,7 +19,7 @@
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
- *      Michael Schwartz <mr.pants AT gmail DOT com>
+ *      Fabian Jakobs <fabian AT ajax DOT org>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-ace.define('ace/theme/vibrant_ink', ['require', 'exports', 'module' ], function(require, exports, module) {
+ace.define('ace/theme/vibrant_ink', ['require', 'exports', 'module' , 'ace/lib/dom'], function(require, exports, module) {
 
 exports.isDark = true;
 exports.cssClass = "ace-vibrant-ink";
@@ -101,11 +101,11 @@ exports.cssText = "\
   color: #404040;\
 }\
 \
-.ace-vibrant-ink .ace_keyword {\
+.ace-vibrant-ink .ace_keyword, .ace-vibrant-ink .ace_meta {\
   color:#FF6600;\
 }\
 \
-.ace-vibrant-ink .ace_constant {\
+.ace-vibrant-ink .ace_constant, .ace-vibrant-ink .ace_constant.ace_other {\
   color:#339999;\
 }\
 \
@@ -130,6 +130,14 @@ background-color:#000000;\
 \
 .ace-vibrant-ink .ace_support.ace_function {\
   color:#FFCC00;\
+}\
+\
+.ace-vibrant-ink .ace_variable {\
+  color:#FFCC00;\
+}\
+\
+.ace-vibrant-ink .ace_variable.ace_parameter {\
+  font-style:italic;\
 }\
 \
 .ace-vibrant-ink .ace_string {\
@@ -157,16 +165,6 @@ color:#99CC99;\
     text-decoration:underline;\
 }";
 
-var dom = require("../lib/dom");
-dom.importCssString(exports.cssText, exports.cssClass);
+    var dom = require("../lib/dom");
+    dom.importCssString(exports.cssText, exports.cssClass);
 });
-;
-            (function() {
-                ace.require(["ace/ace"], function(a) {
-                    if (!window.ace)
-                        window.ace = {};
-                    for (var key in a) if (a.hasOwnProperty(key))
-                        ace[key] = a[key];
-                });
-            })();
-        

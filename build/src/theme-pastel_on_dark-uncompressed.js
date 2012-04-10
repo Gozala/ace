@@ -19,7 +19,7 @@
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
- *      André Fiedler <fiedler dot andre a t gmail dot com>
+ *      Fabian Jakobs <fabian AT ajax DOT org>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-define('ace/theme/pastel_on_dark', ['require', 'exports', 'module' ], function(require, exports, module) {
+define('ace/theme/pastel_on_dark', ['require', 'exports', 'module' , 'ace/lib/dom'], function(require, exports, module) {
 
 exports.isDark = true;
 exports.cssClass = "ace-pastel-on-dark";
@@ -101,7 +101,7 @@ exports.cssText = "\
   color: rgba(255, 255, 255, 0.25);\
 }\
 \
-.ace-pastel-on-dark .ace_keyword {\
+.ace-pastel-on-dark .ace_keyword, .ace-pastel-on-dark .ace_meta {\
   color:#757aD8;\
 }\
 \
@@ -109,7 +109,7 @@ exports.cssText = "\
   color:#797878;\
 }\
 \
-.ace-pastel-on-dark .ace_constant {\
+.ace-pastel-on-dark .ace_constant, .ace-pastel-on-dark .ace_constant.ace_other {\
   color:#4FB7C5;\
 }\
 \
@@ -174,16 +174,6 @@ color:#D2A8A1;\
     text-decoration:underline;\
 }";
 
-var dom = require("../lib/dom");
-dom.importCssString(exports.cssText, exports.cssClass);
+    var dom = require("../lib/dom");
+    dom.importCssString(exports.cssText, exports.cssClass);
 });
-;
-            (function() {
-                window.require(["ace/ace"], function(a) {
-                    if (!window.ace)
-                        window.ace = {};
-                    for (var key in a) if (a.hasOwnProperty(key))
-                        ace[key] = a[key];
-                });
-            })();
-        

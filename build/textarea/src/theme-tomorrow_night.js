@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-__ace_shadowed__.define('ace/theme/tomorrow_night', ['require', 'exports', 'module' ], function(require, exports, module) {
+__ace_shadowed__.define('ace/theme/tomorrow_night', ['require', 'exports', 'module' , 'ace/lib/dom'], function(require, exports, module) {
 
 exports.isDark = true;
 exports.cssClass = "ace-tomorrow-night";
@@ -101,7 +101,7 @@ exports.cssText = "\
   color: #4B4E55;\
 }\
 \
-.ace-tomorrow-night .ace_keyword {\
+.ace-tomorrow-night .ace_keyword, .ace-tomorrow-night .ace_meta {\
   color:#B294BB;\
 }\
 \
@@ -117,6 +117,10 @@ exports.cssText = "\
   color:#DE935F;\
 }\
 \
+.ace-tomorrow-night .ace_constant.ace_other {\
+  color:#CED1CF;\
+}\
+\
 .ace-tomorrow-night .ace_invalid {\
   color:#CED2CF;\
 background-color:#DF5F5F;\
@@ -127,6 +131,10 @@ background-color:#DF5F5F;\
 background-color:#B798BF;\
 }\
 \
+.ace-tomorrow-night .ace_support.ace_constant {\
+  color:#DE935F;\
+}\
+\
 .ace-tomorrow-night .ace_fold {\
     background-color: #81A2BE;\
     border-color: #C5C8C6;\
@@ -134,6 +142,22 @@ background-color:#B798BF;\
 \
 .ace-tomorrow-night .ace_support.ace_function {\
   color:#81A2BE;\
+}\
+\
+.ace-tomorrow-night .ace_storage {\
+  color:#B294BB;\
+}\
+\
+.ace-tomorrow-night .ace_storage.ace_type,  .ace-tomorrow-night .ace_support.ace_type{\
+  color:#B294BB;\
+}\
+\
+.ace-tomorrow-night .ace_variable {\
+  color:#81A2BE;\
+}\
+\
+.ace-tomorrow-night .ace_variable.ace_parameter {\
+  color:#DE935F;\
 }\
 \
 .ace-tomorrow-night .ace_string {\
@@ -172,16 +196,6 @@ background-color:#B798BF;\
   color:#B5BD68;\
 }";
 
-var dom = require("../lib/dom");
-dom.importCssString(exports.cssText, exports.cssClass);
+    var dom = require("../lib/dom");
+    dom.importCssString(exports.cssText, exports.cssClass);
 });
-;
-            (function() {
-                __ace_shadowed__.require(["ace/ext/textarea"], function(a) {
-                    if (!window.__ace_shadowed__)
-                        window.__ace_shadowed__ = {};
-                    for (var key in a) if (a.hasOwnProperty(key))
-                        __ace_shadowed__[key] = a[key];
-                });
-            })();
-        

@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-ace.define('ace/theme/idle_fingers', ['require', 'exports', 'module' ], function(require, exports, module) {
+ace.define('ace/theme/idle_fingers', ['require', 'exports', 'module' , 'ace/lib/dom'], function(require, exports, module) {
 
 exports.isDark = true;
 exports.cssClass = "ace-idle-fingers";
@@ -101,17 +101,21 @@ exports.cssText = "\
   color: #404040;\
 }\
 \
-.ace-idle-fingers .ace_keyword {\
+.ace-idle-fingers .ace_keyword, .ace-idle-fingers .ace_meta {\
   color:#CC7833;\
 }\
 \
-.ace-idle-fingers .ace_constant {\
+.ace-idle-fingers .ace_constant, .ace-idle-fingers .ace_constant.ace_other {\
   color:#6C99BB;\
 }\
 \
 .ace-idle-fingers .ace_invalid {\
   color:#FFFFFF;\
 background-color:#FF0000;\
+}\
+\
+.ace-idle-fingers .ace_support.ace_constant {\
+  color:#6C99BB;\
 }\
 \
 .ace-idle-fingers .ace_fold {\
@@ -121,6 +125,10 @@ background-color:#FF0000;\
 \
 .ace-idle-fingers .ace_support.ace_function {\
   color:#B83426;\
+}\
+\
+.ace-idle-fingers .ace_variable.ace_parameter {\
+  font-style:italic;\
 }\
 \
 .ace-idle-fingers .ace_string {\
@@ -153,16 +161,6 @@ color:#BC9458;\
 background-color:#FFF980;   \
 }";
 
-var dom = require("../lib/dom");
-dom.importCssString(exports.cssText, exports.cssClass);
+    var dom = require("../lib/dom");
+    dom.importCssString(exports.cssText, exports.cssClass);
 });
-;
-            (function() {
-                ace.require(["ace/ace"], function(a) {
-                    if (!window.ace)
-                        window.ace = {};
-                    for (var key in a) if (a.hasOwnProperty(key))
-                        ace[key] = a[key];
-                });
-            })();
-        
